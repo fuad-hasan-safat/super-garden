@@ -8,7 +8,6 @@ import { Suspense } from "react"
 export default function PlantsPage() {
   return (
     <div className="min-h-screen bg-cream-50">
-      <Header />
       <PlantsHeader />
 
       <div className="container mx-auto px-4 py-8">

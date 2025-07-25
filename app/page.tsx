@@ -10,7 +10,6 @@ import Footer from "@/components/layout/Footer"
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-cream-50">
-      <Header />
       <main>
         <HeroSection />
         <FeaturedProducts />
@@ -19,7 +18,6 @@ export default function HomePage() {
         <TestimonialsSection />
         <NewsletterSection />
       </main>
-      <Footer />
     </div>
   )
 }
