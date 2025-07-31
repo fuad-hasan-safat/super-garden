@@ -11,7 +11,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ZodType } from "zod";
 
-type BaseFormProps<T extends FieldValues> = {
+type LivanaFormProps<T extends FieldValues> = {
   schema: ZodType<T, any, any>;
   onSubmit: SubmitHandler<T>;
   children: (methods: UseFormReturn<T>) => React.ReactNode;
@@ -19,13 +19,13 @@ type BaseFormProps<T extends FieldValues> = {
   className?: string;
 };
 
-export const BaseForm = <T extends FieldValues>({
+export const AppForm = <T extends FieldValues>({
   schema,
   onSubmit,
   children,
   defaultValues,
   className,
-}: BaseFormProps<T>) => {
+}: LivanaFormProps<T>) => {
   const methods = useForm<T>({
     resolver: zodResolver(schema),
     defaultValues,
