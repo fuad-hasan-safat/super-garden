@@ -1,8 +1,8 @@
-import AuthForm from '@/components/auth/authForm';
+import SignUp from '@/components/auth/SignUp';
 import React from 'react';
 
 export default function page() {
   return (
-   <AuthForm/>
+    <SignUp />
   );
 }

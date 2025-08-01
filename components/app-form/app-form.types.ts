@@ -4,6 +4,7 @@ import {
   FieldValues,
   Path,
   Control,
+  UseFormReset,
 } from "react-hook-form";
 
 // input field props

@@ -5,53 +5,151 @@ import { authSchema, authType } from '../schema/auth';
 import AppInputField from '../app-form/app-input-field';
 import { Button } from '../ui/button';
 
-export default function AuthForm() {
-  const onSubmit = (data: authType) => {
-    console.log(data);
-    alert(JSON.stringify(data, null, 2))
+interface AuthFormProps {
+  formType: 'signin' | 'signup';
+}
+
+export default function AuthForm({ formType = 'signin' }: AuthFormProps) {
+  const isSignIn = formType === 'signin';
+  const title = isSignIn ? 'Sign In to Your Garden' : 'Grow Your Garden';
+  const buttonText = isSignIn ? 'Sign In' : 'Create Account';
+  const footerText = isSignIn ? "Don't have an account?" : "Already have an account?";
+  const footerAction = isSignIn ? 'signup' : 'signin';
+  const footerLinkText = isSignIn ? 'Sign Up' : 'Sign In';
+
+  async function OnSubmitSignin(data: authType) {
+    alert('Sign In Sucessfull')
+
+  }
+
+  async function OnSubmitSignup(data: authType) {
+    alert('Sign Up Sucessfull')
+
+  }
+
+  async function onSubmit(data: authType) {
+    if (isSignIn) {
+      OnSubmitSignin(data);
+    } else {
+      OnSubmitSignup(data);
+    }
   }
 
   return (
-    <div>
-      <AppForm <authType>
-        schema={authSchema}
-        onSubmit={onSubmit}
-        className='space-y-2'
-      >
-        {
-          ({ register, formState: { errors } }) => (
-            <>
-              <div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
+      <div className="w-full max-w-md">
+        {/* Header with logo */}
+        <div className="text-center mb-8">
+          <div className="mx-auto bg-green-100 h-20 w-20 rounded-full flex items-center justify-center mb-4 shadow-inner">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-12 w-12 text-green-700"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-green-800">Super Garden</h1>
+          <p className="mt-2 text-green-600">{title}</p>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 border border-green-100">
+          <AppForm<authType>
+            schema={authSchema}
+            onSubmit={onSubmit}
+            className="space-y-5"
+          >
+            {({ reset, register ,formState: { errors, isSubmitting , isSubmitted} }) => (
+              <>
                 <AppInputField
-                  name='email'
-                  type='text'
-                  label='Email'
+                  name="email"
+                  type="email"
+                  label="Email Address"
                   register={register}
                   errors={errors}
-                  placeholder='example@mail.com'
-                  containerClass='space-y-2'
-                  key={'Naemmeme'}
+                  placeholder="your@email.com"
+                  containerClass="space-y-1"
+                  inputClass="py-3 px-4 border-green-200 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
 
                 <AppInputField
-                  name='password'
-                  type='password'
-                  label='Password'
+                  name="password"
+                  type="password"
+                  label="Password"
                   register={register}
                   errors={errors}
-                  placeholder='Enter your password'
-                  
+                  placeholder="••••••••"
+                  containerClass="space-y-1"
+                  inputClass="py-3 px-4 border-green-200 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
-              </div>
 
-              <div>
-                <Button type='submit'>Submit</Button>
-              </div>
-            </>
-          )
+                {!isSignIn && (
+                  <div className="text-sm text-green-600 bg-green-50 p-3 rounded-lg border border-green-100">
+                    <p className="font-medium">Password requirements:</p>
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li>At least 8 characters</li>
+                      <li>One uppercase letter</li>
+                      <li>One special character</li>
+                    </ul>
+                  </div>
+                )}
 
-        }
-      </AppForm>
+                {isSignIn && (
+                  <div className="text-right">
+                    <a
+                      href="#"
+                      className="text-sm font-medium text-green-600 hover:text-green-500 transition-colors"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                )}
+
+                <div className="pt-3">
+                  <Button
+                    type="submit"
+                    className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-transform duration-200"
+                    disabled={isSubmitting}
+                    onClick={()=> {
+                      if(isSubmitted ){
+                        // reset();
+                      }
+                    }}
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </span>
+                    ) : buttonText}
+                  </Button>
+                </div>
+              </>
+            )}
+          </AppForm>
+
+          <div className="mt-6 pt-5 border-t border-green-100">
+            <p className="text-center text-sm text-gray-500">
+              {footerText}{' '}
+              <a
+                href={`/${footerAction}`}
+                className="font-medium text-green-600 hover:text-green-500 transition-colors"
+              >
+                {footerLinkText}
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8 text-center text-xs text-green-600/80">
+          © {new Date().getFullYear()} Super Garden. Cultivating beautiful spaces.
+        </div>
+      </div>
     </div>
   );
 }

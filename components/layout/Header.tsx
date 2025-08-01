@@ -54,13 +54,12 @@ export default function Header() {
 
           {/* Right Side Icons */}
           <div className="flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              size="icon"
+            <Link
+              href={"/signin"}
               className="hidden md:flex text-forest-700 hover:text-sage-600 hover:bg-sage-50"
             >
               <User className="h-5 w-5" />
-            </Button>
+            </Link>
             <Button
               variant="ghost"
               size="icon"
