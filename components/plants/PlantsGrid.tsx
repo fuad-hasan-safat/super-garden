@@ -1,6 +1,6 @@
 "use client"
 
-import { useAppSelector } from "@/lib/hooks"
+import { useAppSelector } from "@/store/hooks"
 import PlantCard from "./PlantCard"
 import { useMemo } from "react"
 
@@ -16,7 +16,7 @@ export default function PlantsGrid() {
       },
   )
 
-  let filteredProducts
+  let filteredProducts: any = []
 
   try {
     filteredProducts = useMemo(() => {
@@ -110,7 +110,7 @@ export default function PlantsGrid() {
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => (
+        {filteredProducts.map((product: any) => (
           <PlantCard key={product.id} product={product} />
         ))}
       </div>

@@ -3,10 +3,10 @@
 import Image from "next/image"
 import { Star, Heart, ShoppingBag, Info, Droplets, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useAppDispatch } from "@/lib/hooks"
-import { addToCart } from "@/lib/features/cart/cartSlice"
-import type { Product } from "@/lib/features/products/productsSlice"
 import { useState } from "react"
+import { Product } from "@/store/features/products/productsSlice"
+import { useAppDispatch } from "@/store/hooks"
+import { addToCart } from "@/store/features/cart/cartSlice"
 
 interface PlantCardProps {
   product: Product

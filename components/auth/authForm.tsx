@@ -5,18 +5,13 @@ import { authSchema, authType } from '../schema/auth';
 import AppInputField from '../app-form/app-input-field';
 import { Button } from '../ui/button';
 import Image from 'next/image';
-import { graphqlClient } from '@/lib/graphqlClient';
-import { LOGIN_MUTATION, SIGNUP_MUTATION } from '@/graphql/mutations';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import { OnSubmitSignin, OnSubmitSignup } from './authServerFunction';
 
 interface AuthFormProps {
   formType: 'signin' | 'signup';
 }
-
-type LoginResponse = {
-  login: string; 
-};
 
 
 export default function AuthForm({ formType = 'signin' }: AuthFormProps) {
@@ -28,48 +23,29 @@ export default function AuthForm({ formType = 'signin' }: AuthFormProps) {
   const footerAction = isSignIn ? 'signup' : 'signin';
   const footerLinkText = isSignIn ? 'Sign Up' : 'Sign In';
 
-  async function OnSubmitSignin(data: authType) {
-    try {
-      const response = await graphqlClient.request<LoginResponse>(LOGIN_MUTATION, {
-        email: data.email,
-        password: data.password,
-      });
-      const token = response.login;
-      localStorage.setItem('token', token);
-      toast('Hey you Logged in successfully');
-      // router.push('/dashboard'); // or your intended route
-    } catch (error: any) {
-      toast(error.response?.errors?.[0]?.message || 'Login failed');
-    }
-  }
-
-  async function OnSubmitSignup(data: authType) {
-    try {
-      const response = await graphqlClient.request(SIGNUP_MUTATION, {
-        createUserInput: {
-          email: data.email,
-          password: data.password,
-          name: data.email.split('@')[0], // or ask name in form
-        },
-      });
-      alert('Signup successful!');
-      router.push('/signin');
-    } catch (error: any) {
-      alert(error.message);
-    }
-  }
 
   async function onSubmit(data: authType) {
     if (isSignIn) {
-      OnSubmitSignin(data);
+      const res = await OnSubmitSignin(data);
+      if (res) {
+        toast.success('Logged in successfully!');
+        router.push('/')
+      } else {
+        toast.error('Logged in Failed!');
+      }
     } else {
-      OnSubmitSignup(data);
+      const res = await OnSubmitSignup(data);
+      if (res) {
+        toast.success('Signup in successfully!');
+      } else {
+        toast.error('Signup in Failed!');
+      }
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
-      <Toaster/>
+      <Toaster />
       {/* Animated Plant Styles */}
       <style jsx>{`
         @keyframes grow {
@@ -177,11 +153,6 @@ export default function AuthForm({ formType = 'signin' }: AuthFormProps) {
                       type="submit"
                       className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-transform duration-200"
                       disabled={isSubmitting}
-                      onClick={() => {
-                        if (isSubmitted) {
-                          reset();
-                        }
-                      }}
                     >
                       {isSubmitting ? (
                         <span className="flex items-center justify-center">

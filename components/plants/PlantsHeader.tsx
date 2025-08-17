@@ -4,8 +4,9 @@ import { useState } from "react"
 import { Search, Filter, Grid3X3, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { setSearchQuery, setSortBy } from "@/lib/features/filters/filtersSlice"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { setSearchQuery, setSortBy } from "@/store/features/filters/filtersSlice"
+
 
 export default function PlantsHeader() {
   const dispatch = useAppDispatch()

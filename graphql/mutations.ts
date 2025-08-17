@@ -10,7 +10,9 @@ export const SIGNUP_MUTATION = gql`
 `;
 
 export const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(email: $email, password: $password)
+  mutation Signin($email: String!, $password: String!) {
+    signin(email: $email, password: $password) {
+      access_token
+    }
   }
 `;

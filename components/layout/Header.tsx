@@ -6,8 +6,10 @@ import { ShoppingBag, Search, Menu, X, User, Heart, Leaf } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-export default function Header() {
+export default function Header({ user }: { user: any }) {
+
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
 
   return (
     <header className="bg-white/95 backdrop-blur-sm shadow-sm border-b border-sage-100 sticky top-0 z-50">
@@ -29,7 +31,7 @@ export default function Header() {
             <Link href="/plants" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
               Plants
             </Link>
-            <Link href="/pots" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
+            {/* <Link href="/pots" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
               Pots & Planters
             </Link>
             <Link href="/care" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
@@ -37,7 +39,7 @@ export default function Header() {
             </Link>
             <Link href="/gifts" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
               Gifts
-            </Link>
+            </Link> */}
           </nav>
 
           {/* Search Bar */}
@@ -54,12 +56,26 @@ export default function Header() {
 
           {/* Right Side Icons */}
           <div className="flex items-center space-x-3">
-            <Link
+
+            {!user && <Link
               href={"/signin"}
               className="hidden md:flex text-forest-700 hover:text-sage-600 hover:bg-sage-50"
             >
               <User className="h-5 w-5" />
-            </Link>
+            </Link>}
+
+            {user && (
+              <Link
+                href="/profile"
+                className="hidden md:flex items-center gap-2 text-forest-700 hover:text-sage-600 hover:bg-sage-50 px-3 py-2 rounded-xl transition"
+              >
+                <span className="flex items-center justify-center h-10 w-10 text-white font-semibold bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-md">
+                  {user.username.slice(0, 2).toUpperCase()}
+                </span>
+                {/* <span className="hidden lg:inline font-medium">{user.username}</span> */}
+              </Link>
+            )}
+
             <Button
               variant="ghost"
               size="icon"
@@ -108,7 +124,7 @@ export default function Header() {
               <Link href="/plants" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
                 Plants
               </Link>
-              <Link href="/pots" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
+              {/* <Link href="/pots" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
                 Pots & Planters
               </Link>
               <Link href="/care" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
@@ -116,7 +132,7 @@ export default function Header() {
               </Link>
               <Link href="/gifts" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
                 Gifts
-              </Link>
+              </Link> */}
             </div>
           </div>
         )}

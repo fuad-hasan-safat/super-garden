@@ -5,8 +5,8 @@ import type React from "react"
 import { useState } from "react"
 import { ChevronDown, ChevronUp, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { setCategory, setPriceRange, resetFilters } from "@/lib/features/filters/filtersSlice"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { resetFilters, setCategory, setPriceRange } from "@/store/features/filters/filtersSlice"
 
 const categories = [
   { id: "all", name: "All Plants", count: 156 },
