@@ -4,6 +4,7 @@ import { authType } from "../schema/auth";
 import { LOGIN_MUTATION, SIGNUP_MUTATION } from "@/graphql/mutations";
 import toast from "react-hot-toast";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 type SignupResponse = {
     createUser: {
@@ -12,9 +13,22 @@ type SignupResponse = {
     };
 };
 
+type SigninResponse = {
+    signin: {
+        access_token: string;
+        user: {
+            id: string;
+            name: string;
+            email: string;
+            role: string;
+        };
+    };
+};
+
+
 export async function OnSubmitSignin(data: authType) {
     try {
-        const response = await graphqlClient.request<{ signin: { access_token: string } }>(
+        const response = await graphqlClient.request<SigninResponse>(
             LOGIN_MUTATION,
             { email: data.email, password: data.password }
         );
@@ -22,10 +36,13 @@ export async function OnSubmitSignin(data: authType) {
         if (!response.signin) {
             return null;
         }
-        const token = response.signin.access_token;
+        const { access_token, user } = response.signin;
+
         const cookieStore = await cookies();
-        cookieStore.set("access_token", token)
-        return token
+        cookieStore.set("access_token", access_token)
+
+        return { access_token, user };
+
     } catch (error: any) {
         console.error(error.response?.errors?.[0]?.message || 'Login failed');
     }
@@ -50,3 +67,20 @@ export async function OnSubmitSignup(data: authType) {
         console.error(error.response?.errors?.[0]?.message || 'Signup failed');
     }
 }
+
+
+export async function logout() {
+    const cookieStore = await cookies();
+    cookieStore.set("access_token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        expires: new Date(0),
+    });
+
+    redirect("/signin");
+}
+
+
+
+

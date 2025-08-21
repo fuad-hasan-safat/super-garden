@@ -1,15 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { ShoppingBag, Search, Menu, X, User, Heart, Leaf } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import Link from "next/link";
+import { ShoppingBag, Search, Menu, X, User, Heart, Leaf } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { logout } from "../auth/authServerFunction";
+import { slugify } from "@/utils/slugify";
+import Image from "next/image";
 
 export default function Header({ user }: { user: any }) {
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <header className="bg-white/95 backdrop-blur-sm shadow-sm border-b border-sage-100 sticky top-0 z-50">
@@ -25,21 +33,18 @@ export default function Header({ user }: { user: any }) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
+            <Link
+              href="/"
+              className="text-forest-700 hover:text-sage-600 transition-colors font-medium"
+            >
               Home
             </Link>
-            <Link href="/plants" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
+            <Link
+              href="/plants"
+              className="text-forest-700 hover:text-sage-600 transition-colors font-medium"
+            >
               Plants
             </Link>
-            {/* <Link href="/pots" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
-              Pots & Planters
-            </Link>
-            <Link href="/care" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
-              Plant Care
-            </Link>
-            <Link href="/gifts" className="text-forest-700 hover:text-sage-600 transition-colors font-medium">
-              Gifts
-            </Link> */}
           </nav>
 
           {/* Search Bar */}
@@ -56,24 +61,60 @@ export default function Header({ user }: { user: any }) {
 
           {/* Right Side Icons */}
           <div className="flex items-center space-x-3">
-
-            {!user && <Link
-              href={"/signin"}
-              className="hidden md:flex text-forest-700 hover:text-sage-600 hover:bg-sage-50"
-            >
-              <User className="h-5 w-5" />
-            </Link>}
+            {!user && (
+              <Link
+                href={"/signin"}
+                className="hidden md:flex text-forest-700 hover:text-sage-600 hover:bg-sage-50 p-2 rounded-xl"
+              >
+                <User className="h-5 w-5" />
+              </Link>
+            )}
 
             {user && (
-              <Link
-                href="/profile"
-                className="hidden md:flex items-center gap-2 text-forest-700 hover:text-sage-600 hover:bg-sage-50 px-3 py-2 rounded-xl transition"
-              >
-                <span className="flex items-center justify-center h-10 w-10 text-white font-semibold bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-md">
-                  {user.username.slice(0, 2).toUpperCase()}
-                </span>
-                {/* <span className="hidden lg:inline font-medium">{user.username}</span> */}
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="hidden md:flex items-center gap-2 text-forest-700 hover:text-sage-600 px-2 py-1 rounded-xl transition">
+                    {user.profilePic ? (
+                      <div className="relative group">
+                        <Image
+                          src={`http://localhost:3000${user.profilePic}`}
+                          height={48}
+                          width={48}
+                          alt={user.name}
+                          className="h-12 w-12 rounded-full object-cover ring-2 ring-green-500 shadow-md transition duration-300 group-hover:ring-green-400 group-hover:scale-105"
+                        />
+                        <span className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 border-2 border-white rounded-full"></span>
+                      </div>
+                    ) : (
+                      <span className="flex items-center justify-center h-12 w-12 text-white font-semibold bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-md transition duration-300 hover:scale-105">
+                        {user.name.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48 bg-white rounded-xl shadow-lg border border-sage-100">
+                  <DropdownMenuItem asChild>
+                    <Link href={`/profile/${slugify(user.name)}`} className="w-full px-2 py-2 text-forest-700 hover:text-sage-600">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="w-full px-2 py-2 text-forest-700 hover:text-sage-600">
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-red-600 font-medium cursor-pointer hover:bg-red-50"
+                    onClick={async () => {
+                      await logout();
+                    }}
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             <Button
@@ -124,19 +165,10 @@ export default function Header({ user }: { user: any }) {
               <Link href="/plants" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
                 Plants
               </Link>
-              {/* <Link href="/pots" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
-                Pots & Planters
-              </Link>
-              <Link href="/care" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
-                Plant Care
-              </Link>
-              <Link href="/gifts" className="text-forest-700 hover:text-sage-600 py-2 font-medium">
-                Gifts
-              </Link> */}
             </div>
           </div>
         )}
       </div>
     </header>
-  )
+  );
 }
