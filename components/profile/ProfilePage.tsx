@@ -8,15 +8,17 @@ import { Briefcase, Calendar, MapPin, Camera, Edit, Mail, Shield, Star, X, Save,
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { graphqlClient } from "@/lib/graphqlClient"
 import { UPDATE_USER_MUTATION } from "@/graphql/mutations"
+import { UpdateUserResponse } from "@/types/userResponse"
 
-export default function ProfilePage({ user }: { user: any }) {
-    console.log("🔎 user object in ProfilePage:", user)
-
+export default function ProfilePage({ user: initialUser }: { user: any }) {
+    const [user, setUser] = useState(initialUser) 
     const fileInputRef = useRef<HTMLInputElement | null>(null)
-    const [preview, setPreview] = useState<string | null>(`http://localhost:3000${user.profilePic}`)
+
+    const [preview, setPreview] = useState<string | null>(
+        user.profilePic ? `http://localhost:3000${user.profilePic}` : null
+    )
     const [loading, setLoading] = useState(false)
 
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -35,49 +37,45 @@ export default function ProfilePage({ user }: { user: any }) {
         const file = event.target.files?.[0]
         if (!file) return
 
-        // Show preview instantly
         const url = URL.createObjectURL(file)
         setPreview(url)
 
         setLoading(true)
         try {
-            // Prepare multipart form for GraphQL upload
             const formData = new FormData()
-
             formData.append(
                 "operations",
                 JSON.stringify({
                     query: `
-            mutation UpdateUserProfilePic($id: String!, $file: Upload!) {
-              updateUserProfilePic(id: $id, file: $file) {
-                id
-                profilePic
-              }
-            }
-          `,
+                        mutation UpdateUserProfilePic($id: String!, $file: Upload!) {
+                          updateUserProfilePic(id: $id, file: $file) {
+                            id
+                            profilePic
+                          }
+                        }
+                    `,
                     variables: { id: user.id, file: null },
                 }),
             )
-
             formData.append("map", JSON.stringify({ "0": ["variables.file"] }))
             formData.append("0", file, file.name)
 
-            // Send directly to GraphQL endpoint
             const res = await fetch("http://localhost:3000/graphql", {
                 method: "POST",
                 body: formData,
                 credentials: "include",
-                headers: {
-                    "apollo-require-preflight": "true", // This fixes CSRF error
-                },
+                headers: { "apollo-require-preflight": "true" },
             })
 
             const json = await res.json()
-            if (json.errors) {
-                throw new Error(json.errors[0].message)
-            }
+            if (json.errors) throw new Error(json.errors[0].message)
 
-            console.log("Updated user:", json.data.updateUserProfilePic)
+            const updated = json.data.updateUserProfilePic
+            console.log("Updated user:", updated)
+
+            // 🔥 Update user & preview with new picture
+            setUser((prev: any) => ({ ...prev, profilePic: updated.profilePic }))
+            setPreview(`http://localhost:3000${updated.profilePic}`)
         } catch (err) {
             console.error("Upload failed", err)
         } finally {
@@ -94,21 +92,18 @@ export default function ProfilePage({ user }: { user: any }) {
 
     const validateForm = () => {
         const errors: Record<string, string> = {}
-
         if (!formData.name.trim()) errors.name = "Name is required"
         if (!formData.email.trim()) errors.email = "Email is required"
         else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email is invalid"
-
         setFormErrors(errors)
         return Object.keys(errors).length === 0
     }
 
     const handleSaveProfile = async () => {
-        if (!validateForm()) return;
-
-        setFormLoading(true);
+        if (!validateForm()) return
+        setFormLoading(true)
         try {
-            const { updateUser } = await graphqlClient.request(UPDATE_USER_MUTATION, {
+            const { updateUser } = await graphqlClient.request<UpdateUserResponse>(UPDATE_USER_MUTATION, {
                 id: formData.id,
                 updateUserInput: {
                     id: formData.id,
@@ -118,27 +113,35 @@ export default function ProfilePage({ user }: { user: any }) {
                     occupation: formData.occupation,
                     birthDate: formData.birthDate ? new Date(formData.birthDate).toISOString() : null,
                 },
-            });
+            })
 
-            console.log("✅ User updated successfully:", updateUser);
+            console.log("✅ User updated successfully:", updateUser)
 
-            // update local UI
-            setFormData((prev) => ({
-                ...prev,
-                ...updateUser,
-            }));
+            setUser(updateUser)
+            setFormData({
+                id: updateUser.id,
+                name: updateUser.name || "",
+                email: updateUser.email || "",
+                address: updateUser.address || "",
+                occupation: updateUser.occupation || "",
+                birthDate: updateUser.birthDate ? new Date(updateUser.birthDate).toISOString().split("T")[0] : "",
+            })
 
-            setIsModalOpen(false);
+            if (updateUser.profilePic) {
+                setPreview(`http://localhost:3000${updateUser.profilePic}`)
+            }
+
+            setIsModalOpen(false)
         } catch (err: any) {
-            console.error("❌ Failed to update user:", err);
+            console.error("❌ Failed to update user:", err)
             setFormErrors((prev) => ({
                 ...prev,
                 general: err.message || "Failed to update user",
-            }));
+            }))
         } finally {
-            setFormLoading(false);
+            setFormLoading(false)
         }
-    };
+    }
 
 
     return (
