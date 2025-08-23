@@ -16,9 +16,10 @@ export type UpdateUserResponse = {
     id: string
     name: string
     email: string
-    address?: string | null
-    occupation?: string | null
+    address?: string
+    occupation?: string
     birthDate?: string | null
-    profilePic?: string | null
+    role: string
+    profilePic: string | null
   }
 }

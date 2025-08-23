@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingBag, Search, Menu, X, User, Heart, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,21 @@ import {
 import { logout } from "../auth/authServerFunction";
 import { slugify } from "@/utils/slugify";
 import Image from "next/image";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { RootState } from "@/store/store";
+import { setUser } from "@/store/features/auth/auth.slice";
 
 export default function Header({ user }: { user: any }) {
+  const dispatch = useAppDispatch()
+  const authuser = useAppSelector((state: RootState) => state.auth)
+
+
+  useEffect(() => {
+    if (user) {
+      dispatch(setUser(user));
+    }
+  }, [user, dispatch]);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -74,10 +87,10 @@ export default function Header({ user }: { user: any }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="hidden md:flex items-center gap-2 text-forest-700 hover:text-sage-600 px-2 py-1 rounded-xl transition">
-                    {user.profilePic ? (
+                    {authuser.profilePic ? (
                       <div className="relative group">
                         <Image
-                          src={`http://localhost:3000${user.profilePic}`}
+                          src={`http://localhost:3000${authuser.profilePic}`}
                           height={48}
                           width={48}
                           alt={user.name}
