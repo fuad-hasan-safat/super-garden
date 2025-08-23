@@ -104,37 +104,41 @@ export default function ProfilePage({ user }: { user: any }) {
     }
 
     const handleSaveProfile = async () => {
-        if (!validateForm()) return
+        if (!validateForm()) return;
 
-        setFormLoading(true)
+        setFormLoading(true);
         try {
-            console.log("➡️ Updating user with ID:", user.id) // Debug
-            console.log("➡️ Sending updateUserInput:", {
+            const { updateUser } = await graphqlClient.request(UPDATE_USER_MUTATION, {
                 id: formData.id,
-                name: formData.name,
-                email: formData.email,
-            })
-
-            await graphqlClient.request(UPDATE_USER_MUTATION, {
                 updateUserInput: {
-                    id: formData.id,               // <-- This must not be undefined
+                    id: formData.id,
                     name: formData.name,
                     email: formData.email,
                     address: formData.address,
                     occupation: formData.occupation,
-                    birthDate: formData.birthDate
-                }
+                    birthDate: formData.birthDate ? new Date(formData.birthDate).toISOString() : null,
+                },
             });
 
-            setIsModalOpen(false)
-            window.location.reload()
-        } catch (error) {
-            console.error("❌ Error updating profile:", error)
-            setFormErrors({ general: "Failed to update profile. Please try again." })
+            console.log("✅ User updated successfully:", updateUser);
+
+            // update local UI
+            setFormData((prev) => ({
+                ...prev,
+                ...updateUser,
+            }));
+
+            setIsModalOpen(false);
+        } catch (err: any) {
+            console.error("❌ Failed to update user:", err);
+            setFormErrors((prev) => ({
+                ...prev,
+                general: err.message || "Failed to update user",
+            }));
         } finally {
-            setFormLoading(false)
+            setFormLoading(false);
         }
-    }
+    };
 
 
     return (

@@ -47,16 +47,16 @@ export const UPDATE_PROFILE_PIC_MUTATION = gql`
         }
 `;
 
-
 export const UPDATE_USER_MUTATION = gql`
-  mutation UpdateUser($updateUserInput: UpdateUserInput!) {
-  updateUser(updateUserInput: $updateUserInput) {
-    id
-    name
-    email
-    address
-    occupation
-    birthDate
+  mutation UpdateUser($id: String!, $updateUserInput: UpdateUserInput!) {
+    updateUser(id: $id, updateUserInput: $updateUserInput) {
+      id
+      name
+      email
+      address
+      occupation
+      birthDate
+      profilePic
+    }
   }
-}
-`
+`;
